@@ -51,6 +51,32 @@ to the web service and redeploy:
 
 The deploy will create or update that admin account automatically.
 
+## Contact Email
+
+The contact form stores each message in Django admin and can also email you.
+Configure SMTP with environment variables:
+
+- `EMAIL_HOST`
+- `EMAIL_PORT`
+- `EMAIL_USE_TLS`
+- `EMAIL_HOST_USER`
+- `EMAIL_HOST_PASSWORD`
+- `DEFAULT_FROM_EMAIL`
+- `CONTACT_RECIPIENT_EMAIL`
+
+For the easiest setup without a custom domain, use Gmail SMTP with a Google App
+Password:
+
+- `EMAIL_HOST`: `smtp.gmail.com`
+- `EMAIL_PORT`: `587`
+- `EMAIL_USE_TLS`: `True`
+- `EMAIL_HOST_USER`: your Gmail address
+- `EMAIL_HOST_PASSWORD`: your Google App Password
+- `DEFAULT_FROM_EMAIL`: your Gmail address
+- `CONTACT_RECIPIENT_EMAIL`: where you want messages delivered
+
+If you later verify a domain, Resend or Brevo SMTP can use the same variables.
+
 For a manual Render web service, use:
 
 - Build command: `./build.sh`

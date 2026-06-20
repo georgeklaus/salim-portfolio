@@ -1,12 +1,17 @@
 import json
+import logging
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
 from django.core.validators import validate_email
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods
 
 from .models import ContactMessage, Education, Experience, Profile, Project, Skill
+
+logger = logging.getLogger(__name__)
 
 
 def bad_request(errors):
@@ -24,6 +29,35 @@ def parse_json_body(request):
         return json.loads(request.body.decode("utf-8") or "{}")
     except json.JSONDecodeError:
         return None
+
+
+def send_contact_email(contact):
+    if not settings.CONTACT_EMAIL_ENABLED:
+        return False
+
+    subject = contact.subject or f"New portfolio message from {contact.name}"
+    body = "\n".join(
+        [
+            "New contact form submission",
+            "",
+            f"Name: {contact.name}",
+            f"Email: {contact.email}",
+            f"Subject: {contact.subject or '(No subject)'}",
+            "",
+            "Message:",
+            contact.message,
+        ]
+    )
+
+    email = EmailMessage(
+        subject=f"Portfolio contact: {subject}",
+        body=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[settings.CONTACT_RECIPIENT_EMAIL],
+        reply_to=[contact.email],
+    )
+    email.send(fail_silently=False)
+    return True
 
 
 @require_GET
@@ -178,4 +212,14 @@ def contact_create(request):
         subject=subject,
         message=message,
     )
-    return JsonResponse({"id": contact.id, "status": "received"}, status=201)
+
+    email_sent = False
+    try:
+        email_sent = send_contact_email(contact)
+    except Exception:
+        logger.exception("Failed to send contact email for message %s.", contact.id)
+
+    return JsonResponse(
+        {"id": contact.id, "status": "received", "email_sent": email_sent},
+        status=201,
+    )
