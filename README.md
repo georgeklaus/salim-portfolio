@@ -61,6 +61,7 @@ Configure SMTP with environment variables:
 - `EMAIL_USE_TLS`
 - `EMAIL_HOST_USER`
 - `EMAIL_HOST_PASSWORD`
+- `EMAIL_TIMEOUT`
 - `DEFAULT_FROM_EMAIL`
 - `CONTACT_RECIPIENT_EMAIL`
 
@@ -72,6 +73,7 @@ Password:
 - `EMAIL_USE_TLS`: `True`
 - `EMAIL_HOST_USER`: your Gmail address
 - `EMAIL_HOST_PASSWORD`: your Google App Password
+- `EMAIL_TIMEOUT`: `5`
 - `DEFAULT_FROM_EMAIL`: your Gmail address
 - `CONTACT_RECIPIENT_EMAIL`: where you want messages delivered
 

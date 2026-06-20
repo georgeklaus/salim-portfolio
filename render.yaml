@@ -23,4 +23,6 @@ services:
       - key: PYTHON_VERSION
         value: "3.13.5"
       - key: WEB_CONCURRENCY
-        value: "4"
+        value: "1"
+      - key: EMAIL_TIMEOUT
+        value: "5"

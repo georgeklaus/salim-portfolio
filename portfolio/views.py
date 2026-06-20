@@ -1,5 +1,6 @@
 import json
 import logging
+from threading import Thread
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -58,6 +59,14 @@ def send_contact_email(contact):
     )
     email.send(fail_silently=False)
     return True
+
+
+def send_contact_email_async(contact_id):
+    try:
+        contact = ContactMessage.objects.get(id=contact_id)
+        send_contact_email(contact)
+    except BaseException:
+        logger.exception("Failed to send contact email for message %s.", contact_id)
 
 
 @require_GET
@@ -213,13 +222,10 @@ def contact_create(request):
         message=message,
     )
 
-    email_sent = False
-    try:
-        email_sent = send_contact_email(contact)
-    except Exception:
-        logger.exception("Failed to send contact email for message %s.", contact.id)
+    if settings.CONTACT_EMAIL_ENABLED:
+        Thread(target=send_contact_email_async, args=(contact.id,), daemon=True).start()
 
     return JsonResponse(
-        {"id": contact.id, "status": "received", "email_sent": email_sent},
+        {"id": contact.id, "status": "received", "email_queued": settings.CONTACT_EMAIL_ENABLED},
         status=201,
     )
