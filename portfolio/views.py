@@ -1,6 +1,8 @@
 import json
 import logging
 from threading import Thread
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -50,14 +52,49 @@ def send_contact_email(contact):
         ]
     )
 
+    email_subject = f"Portfolio contact: {subject}"
+    if settings.RESEND_API_KEY:
+        return send_contact_email_with_resend(contact, email_subject, body)
+
     email = EmailMessage(
-        subject=f"Portfolio contact: {subject}",
+        subject=email_subject,
         body=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[settings.CONTACT_RECIPIENT_EMAIL],
         reply_to=[contact.email],
     )
     email.send(fail_silently=False)
+    return True
+
+
+def send_contact_email_with_resend(contact, subject, body):
+    payload = {
+        "from": settings.DEFAULT_FROM_EMAIL,
+        "to": [settings.CONTACT_RECIPIENT_EMAIL],
+        "subject": subject,
+        "text": body,
+        "reply_to": contact.email,
+    }
+    request = Request(
+        settings.RESEND_API_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+
+    try:
+        with urlopen(request, timeout=settings.EMAIL_TIMEOUT) as response:
+            if response.status >= 400:
+                raise RuntimeError(f"Resend returned HTTP {response.status}.")
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Resend returned HTTP {exc.code}: {detail}") from exc
+    except URLError as exc:
+        raise RuntimeError(f"Could not reach Resend: {exc.reason}") from exc
+
     return True
 
 

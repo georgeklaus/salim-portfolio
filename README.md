@@ -65,8 +65,18 @@ Configure SMTP with environment variables:
 - `DEFAULT_FROM_EMAIL`
 - `CONTACT_RECIPIENT_EMAIL`
 
-For the easiest setup without a custom domain, use Gmail SMTP with a Google App
-Password:
+For Render, the most reliable setup is Resend because it sends over HTTPS
+instead of SMTP:
+
+- `RESEND_API_KEY`: your Resend API key
+- `DEFAULT_FROM_EMAIL`: `Portfolio <onboarding@resend.dev>` for testing, or a verified domain sender
+- `CONTACT_RECIPIENT_EMAIL`: where you want messages delivered
+
+For first tests, Resend's `onboarding@resend.dev` sender works best when sending
+to the email address on your Resend account. For broader sending, verify your own
+domain in Resend and use an address on that domain.
+
+Gmail SMTP also works locally and may work on hosts that allow SMTP:
 
 - `EMAIL_HOST`: `smtp.gmail.com`
 - `EMAIL_PORT`: `587`
