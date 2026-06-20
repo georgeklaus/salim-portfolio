@@ -42,6 +42,15 @@ This repo includes `render.yaml`, so the fastest path is Render Blueprints:
 python manage.py createsuperuser
 ```
 
+If Render Shell is not available on your plan, add these environment variables
+to the web service and redeploy:
+
+- `DJANGO_SUPERUSER_USERNAME`
+- `DJANGO_SUPERUSER_EMAIL`
+- `DJANGO_SUPERUSER_PASSWORD`
+
+The deploy will create or update that admin account automatically.
+
 For a manual Render web service, use:
 
 - Build command: `./build.sh`
@@ -51,3 +60,6 @@ For a manual Render web service, use:
   - `DJANGO_SECRET_KEY`: generated secret
   - `DJANGO_DEBUG`: `False`
   - `PYTHON_VERSION`: `3.13.5`
+  - `DJANGO_SUPERUSER_USERNAME`: your admin username
+  - `DJANGO_SUPERUSER_EMAIL`: your admin email
+  - `DJANGO_SUPERUSER_PASSWORD`: your admin password
