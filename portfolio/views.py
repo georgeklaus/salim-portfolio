@@ -79,8 +79,10 @@ def send_contact_email_with_resend(contact, subject, body):
         settings.RESEND_API_URL,
         data=json.dumps(payload).encode("utf-8"),
         headers={
+            "Accept": "application/json",
             "Authorization": f"Bearer {settings.RESEND_API_KEY}",
             "Content-Type": "application/json",
+            "User-Agent": "salim-portfolio/1.0",
         },
         method="POST",
     )
